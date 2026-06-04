@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "1883:1883"
+      - "9001:9001" # websocket
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    restart: unless-stopped
+
+  nodered:
+    image: nodered/node-red:latest
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./flows.json:/data/flows.json:ro
+    environment:
+      - TZ=UTC
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+
+networks:
+  default:
+    name: labcontrol-iot
+    driver: bridge
